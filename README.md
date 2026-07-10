@@ -24,7 +24,7 @@ This project showcases two things n8n is particularly good at:
 
 1. **Intake** — a request comes in through an n8n-hosted form, or an email is parsed (with an LLM) to pull out the requester's name, email, purpose, preferred date/time, duration, and timezone.
 2. **Availability check** — the workflow queries Google Calendar's free/busy API across a search window and walks working hours to find the first open slot that fits the requested duration.
-3. **Auto-book** — if a slot is found, it creates a Google Calendar event (with a Google Meet link) and invites the requester. If nothing is free, it emails back with the nearest alternatives instead.
+3. **Auto-book** — if a slot is found, it creates a Google Calendar event (optionally with a Google Meet link) and invites the requester. If nothing is free, it emails back with the nearest alternatives instead.
 4. **Confirmation + reminders** — a confirmation email goes out immediately, followed by a 24-hour-before reminder, a 30-minute-before reminder, and a post-meeting follow-up — each fired by its own `Wait` node.
 
 ## Repo structure
@@ -43,7 +43,7 @@ docs/
 - [x] Availability check against Google Calendar
 - [x] Auto-booking
 - [x] Confirmation + reminder sequence
-- [ ] Setup & architecture docs
+- [x] Setup & architecture docs
 
 ## Requirements
 
@@ -52,4 +52,4 @@ docs/
 - A Gmail credential in n8n (or swap in any SMTP/email node)
 - Optional: an OpenAI (or other LLM) credential, used to parse free-form email requests into structured data
 
-See [docs/setup.md](docs/setup.md) for step-by-step configuration.
+See [docs/setup.md](docs/setup.md) for step-by-step configuration, and [docs/architecture.md](docs/architecture.md) for a node-by-node breakdown of the workflow.
