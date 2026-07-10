@@ -1,0 +1,238 @@
+{
+  "name": "Meeting Scheduler / Calendar Concierge",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. Intake\nA request comes in from the booking form or an inbound email. Both paths are normalized into the same shape:\n`name, email, purpose, requestedDate, requestedTime, duration, timezone`",
+        "height": 380,
+        "width": 300,
+        "color": 5
+      },
+      "id": "sticky-intake",
+      "name": "Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-320, -40]
+    },
+    {
+      "parameters": {
+        "formTitle": "Schedule a Meeting",
+        "formDescription": "Tell us about the meeting you'd like to book and we'll find the next available slot on the calendar.",
+        "formFields": {
+          "values": [
+            { "fieldLabel": "Name", "requiredField": true },
+            { "fieldLabel": "Email", "fieldType": "email", "requiredField": true },
+            { "fieldLabel": "Meeting Purpose", "fieldType": "textarea", "requiredField": true },
+            { "fieldLabel": "Preferred Date", "fieldType": "date", "requiredField": true },
+            {
+              "fieldLabel": "Preferred Time (24h, e.g. 14:00)",
+              "requiredField": true,
+              "placeholder": "14:00"
+            },
+            {
+              "fieldLabel": "Duration (minutes)",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  { "option": "15" },
+                  { "option": "30" },
+                  { "option": "45" },
+                  { "option": "60" }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Timezone",
+              "placeholder": "America/New_York",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "form-trigger",
+      "name": "Meeting Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [0, -80],
+      "webhookId": "meeting-scheduler-form"
+    },
+    {
+      "parameters": {
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]"
+        }
+      },
+      "id": "imap-trigger",
+      "name": "Meeting Request Email",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [0, 220],
+      "credentials": {
+        "imap": {
+          "id": "REPLACE_ME",
+          "name": "Meeting Inbox (IMAP)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You extract structured meeting-request data from an email. Reply with ONLY minified JSON, no prose: {\"name\":string,\"email\":string,\"purpose\":string,\"requestedDate\":\"YYYY-MM-DD\",\"requestedTime\":\"HH:mm\",\"duration\":number,\"timezone\":string}. \"duration\" is in minutes (default 30 if not stated). \"timezone\" is an IANA string (default \"UTC\" if not stated). If the body doesn't state an email address, leave \"email\" empty."
+            },
+            {
+              "role": "user",
+              "content": "={{ 'Subject: ' + $json.subject + '\\nFrom: ' + $json.from + '\\n\\n' + $json.textPlain }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "parse-email-ai",
+      "name": "Parse Email With AI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.6,
+      "position": [220, 220],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_ME",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "name", "type": "string", "value": "={{ $json['Name'] }}" },
+            { "id": "a2", "name": "email", "type": "string", "value": "={{ $json['Email'] }}" },
+            { "id": "a3", "name": "purpose", "type": "string", "value": "={{ $json['Meeting Purpose'] }}" },
+            { "id": "a4", "name": "requestedDate", "type": "string", "value": "={{ $json['Preferred Date'] }}" },
+            { "id": "a5", "name": "requestedTime", "type": "string", "value": "={{ $json['Preferred Time (24h, e.g. 14:00)'] }}" },
+            { "id": "a6", "name": "duration", "type": "string", "value": "={{ $json['Duration (minutes)'] }}" },
+            { "id": "a7", "name": "timezone", "type": "string", "value": "={{ $json['Timezone'] }}" },
+            { "id": "a8", "name": "source", "type": "string", "value": "form" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "normalize-form",
+      "name": "Normalize Form Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [220, -80]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// The OpenAI node's response shape can vary slightly by version, so read defensively.\nconst raw = item.message?.content || item.content || item.text || item.output || '{}';\n\nlet parsed = {};\ntry {\n  const match = raw.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : raw);\n} catch (e) {\n  parsed = {};\n}\n\nlet fallbackEmail = '';\ntry {\n  fallbackEmail = $('Meeting Request Email').first().json.from || '';\n} catch (e) {\n  // no email trigger data in this execution\n}\n\nreturn [{\n  json: {\n    name: parsed.name || '',\n    email: parsed.email || fallbackEmail,\n    purpose: parsed.purpose || '',\n    requestedDate: parsed.requestedDate || '',\n    requestedTime: parsed.requestedTime || '',\n    duration: parsed.duration || 30,\n    timezone: parsed.timezone || 'UTC',\n    source: 'email'\n  }\n}];"
+      },
+      "id": "normalize-email",
+      "name": "Normalize Email Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 220]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "numberInputs": 2
+      },
+      "id": "merge-intake",
+      "name": "Merge Intake Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [660, 70]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            { "id": "c1", "leftValue": "={{ $json.name }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
+            { "id": "c2", "leftValue": "={{ $json.email }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
+            { "id": "c3", "leftValue": "={{ $json.requestedDate }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
+            { "id": "c4", "leftValue": "={{ $json.requestedTime }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate-request",
+      "name": "Has Required Fields?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [880, 70]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "We need a bit more info to schedule your meeting",
+        "message": "=Hi {{ $json.name || 'there' }},<br><br>We received your meeting request but couldn't find all the details we need (name, email, a preferred date, and a preferred time). Could you reply with the missing info so we can get this booked?<br><br>Thanks!",
+        "options": {}
+      },
+      "id": "request-missing-info",
+      "name": "Request Missing Info",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1100, 260],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Meeting Request Form": {
+      "main": [[{ "node": "Normalize Form Input", "type": "main", "index": 0 }]]
+    },
+    "Meeting Request Email": {
+      "main": [[{ "node": "Parse Email With AI", "type": "main", "index": 0 }]]
+    },
+    "Parse Email With AI": {
+      "main": [[{ "node": "Normalize Email Input", "type": "main", "index": 0 }]]
+    },
+    "Normalize Form Input": {
+      "main": [[{ "node": "Merge Intake Sources", "type": "main", "index": 0 }]]
+    },
+    "Normalize Email Input": {
+      "main": [[{ "node": "Merge Intake Sources", "type": "main", "index": 1 }]]
+    },
+    "Merge Intake Sources": {
+      "main": [[{ "node": "Has Required Fields?", "type": "main", "index": 0 }]]
+    },
+    "Has Required Fields?": {
+      "main": [
+        [],
+        [{ "node": "Request Missing Info", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

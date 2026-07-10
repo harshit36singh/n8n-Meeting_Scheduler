@@ -39,7 +39,7 @@ docs/
 
 ## Status
 
-- [ ] Intake: form + email triggers, AI parsing, normalization
+- [x] Intake: form + email triggers, AI parsing, normalization
 - [ ] Availability check against Google Calendar
 - [ ] Auto-booking
 - [ ] Confirmation + reminder sequence
