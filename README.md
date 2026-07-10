@@ -42,7 +42,7 @@ docs/
 - [x] Intake: form + email triggers, AI parsing, normalization
 - [x] Availability check against Google Calendar
 - [x] Auto-booking
-- [ ] Confirmation + reminder sequence
+- [x] Confirmation + reminder sequence
 - [ ] Setup & architecture docs
 
 ## Requirements

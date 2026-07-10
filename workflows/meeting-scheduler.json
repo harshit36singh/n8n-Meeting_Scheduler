@@ -347,6 +347,141 @@
           "name": "Gmail"
         }
       }
+    },
+    {
+      "parameters": {
+        "content": "## 4. Confirmation + Reminder Sequence\nSend a confirmation right away, then use `Wait` nodes to fire a 24-hour-before reminder, a 30-minute-before reminder, and a post-meeting follow-up — all from this one execution. If a resume time has already passed (e.g. a same-day booking), the Wait node just resumes immediately.",
+        "height": 260,
+        "width": 1760,
+        "color": 3
+      },
+      "id": "sticky-followup",
+      "name": "Confirmation + Reminders",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2200, -480]
+    },
+    {
+      "parameters": {
+        "jsCode": "const booking = $input.first().json;\nconst request = $('Find Available Slot').first().json;\n\nconst meetingLink = booking.hangoutLink\n  || booking.conferenceData?.entryPoints?.find(e => e.entryPointType === 'video')?.uri\n  || '';\n\nreturn [{\n  json: {\n    ...request,\n    eventId: booking.id,\n    eventLink: booking.htmlLink,\n    meetingLink\n  }\n}];"
+      },
+      "id": "prepare-confirmation",
+      "name": "Prepare Confirmation Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2220, -200]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Meeting Confirmed: {{ $json.purpose }}",
+        "message": "=Hi {{ $json.name }},<br><br>Your meeting is booked for {{ $json.slotStart }} ({{ $json.timezone }}), for {{ $json.duration }} minutes.<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink + '<br><br>' : '' }}Calendar event: {{ $json.eventLink }}<br><br>See you then!",
+        "options": {}
+      },
+      "id": "send-confirmation-email",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2440, -200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ DateTime.fromISO($json.slotStart).minus({ hours: 24 }).toISO() }}"
+      },
+      "id": "wait-24h",
+      "name": "Wait Until 24h Before",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2660, -200],
+      "webhookId": "wait-24h-before"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Reminder: your meeting is tomorrow",
+        "message": "=Hi {{ $json.name }},<br><br>Just a reminder that your meeting (\"{{ $json.purpose }}\") is scheduled for {{ $json.slotStart }} ({{ $json.timezone }}).<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink : '' }}",
+        "options": {}
+      },
+      "id": "send-24h-reminder",
+      "name": "Send 24h Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2880, -200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ DateTime.fromISO($json.slotStart).minus({ minutes: 30 }).toISO() }}"
+      },
+      "id": "wait-30min",
+      "name": "Wait Until 30min Before",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [3100, -200],
+      "webhookId": "wait-30min-before"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Reminder: your meeting starts soon",
+        "message": "=Hi {{ $json.name }},<br><br>Your meeting (\"{{ $json.purpose }}\") starts in about 30 minutes.<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink : '' }}",
+        "options": {}
+      },
+      "id": "send-30min-reminder",
+      "name": "Send 30min Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [3320, -200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.slotEnd }}"
+      },
+      "id": "wait-until-end",
+      "name": "Wait Until Meeting End",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [3540, -200],
+      "webhookId": "wait-until-end"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=How did your meeting go?",
+        "message": "=Hi {{ $json.name }},<br><br>Hope your meeting (\"{{ $json.purpose }}\") went well! Reply to this email if there's anything we can help follow up on.",
+        "options": {}
+      },
+      "id": "send-followup-email",
+      "name": "Send Follow-Up Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [3760, -200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_ME",
+          "name": "Gmail"
+        }
+      }
     }
   ],
   "connections": {
@@ -388,6 +523,30 @@
         [{ "node": "Book Meeting", "type": "main", "index": 0 }],
         [{ "node": "Send No-Availability Email", "type": "main", "index": 0 }]
       ]
+    },
+    "Book Meeting": {
+      "main": [[{ "node": "Prepare Confirmation Details", "type": "main", "index": 0 }]]
+    },
+    "Prepare Confirmation Details": {
+      "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]]
+    },
+    "Send Confirmation Email": {
+      "main": [[{ "node": "Wait Until 24h Before", "type": "main", "index": 0 }]]
+    },
+    "Wait Until 24h Before": {
+      "main": [[{ "node": "Send 24h Reminder", "type": "main", "index": 0 }]]
+    },
+    "Send 24h Reminder": {
+      "main": [[{ "node": "Wait Until 30min Before", "type": "main", "index": 0 }]]
+    },
+    "Wait Until 30min Before": {
+      "main": [[{ "node": "Send 30min Reminder", "type": "main", "index": 0 }]]
+    },
+    "Send 30min Reminder": {
+      "main": [[{ "node": "Wait Until Meeting End", "type": "main", "index": 0 }]]
+    },
+    "Wait Until Meeting End": {
+      "main": [[{ "node": "Send Follow-Up Email", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
