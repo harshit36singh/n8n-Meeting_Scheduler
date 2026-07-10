@@ -2,17 +2,21 @@
 
 An n8n workflow that turns a meeting request — from a **web form** or an **inbound email** — into a fully booked Google Calendar event, with zero human in the loop:
 
-```
-Form or email request
-      │
-      ▼
-Check Google Calendar availability
-      │
-      ▼
-Auto-book the meeting
-      │
-      ▼
-Send confirmation + a multi-step reminder sequence
+```mermaid
+flowchart TD
+    A["Form or Email Request"] --> B["Check Google Calendar Availability"]
+    B --> C["Auto-Book the Meeting"]
+    C --> D["Confirmation + Reminder Sequence"]
+
+    classDef intake fill:#dbe9ff,stroke:#3667c9,stroke-width:2px,color:#12234a
+    classDef check fill:#ffedc2,stroke:#c98a1f,stroke-width:2px,color:#4a3410
+    classDef book fill:#d3f5df,stroke:#2fa860,stroke-width:2px,color:#0e3d20
+    classDef followup fill:#ecdcfb,stroke:#8b3fd6,stroke-width:2px,color:#33144a
+
+    class A intake
+    class B check
+    class C book
+    class D followup
 ```
 
 This project showcases two things n8n is particularly good at:
