@@ -40,8 +40,8 @@ docs/
 ## Status
 
 - [x] Intake: form + email triggers, AI parsing, normalization
-- [ ] Availability check against Google Calendar
-- [ ] Auto-booking
+- [x] Availability check against Google Calendar
+- [x] Auto-booking
 - [ ] Confirmation + reminder sequence
 - [ ] Setup & architecture docs
 
