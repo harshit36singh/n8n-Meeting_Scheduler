@@ -8,11 +8,14 @@
         "width": 300,
         "color": 5
       },
-      "id": "sticky-intake",
+      "id": "ea78b967-3510-4694-93fb-a87e3e794a9e",
       "name": "Intake",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [-320, -40]
+      "position": [
+        -3680,
+        1008
+      ]
     },
     {
       "parameters": {
@@ -20,24 +23,47 @@
         "formDescription": "Tell us about the meeting you'd like to book and we'll find the next available slot on the calendar.",
         "formFields": {
           "values": [
-            { "fieldLabel": "Name", "requiredField": true },
-            { "fieldLabel": "Email", "fieldType": "email", "requiredField": true },
-            { "fieldLabel": "Meeting Purpose", "fieldType": "textarea", "requiredField": true },
-            { "fieldLabel": "Preferred Date", "fieldType": "date", "requiredField": true },
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Meeting Purpose",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Preferred Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
             {
               "fieldLabel": "Preferred Time (24h, e.g. 14:00)",
-              "requiredField": true,
-              "placeholder": "14:00"
+              "placeholder": "14:00",
+              "requiredField": true
             },
             {
               "fieldLabel": "Duration (minutes)",
               "fieldType": "dropdown",
               "fieldOptions": {
                 "values": [
-                  { "option": "15" },
-                  { "option": "30" },
-                  { "option": "45" },
-                  { "option": "60" }
+                  {
+                    "option": "15"
+                  },
+                  {
+                    "option": "30"
+                  },
+                  {
+                    "option": "45"
+                  },
+                  {
+                    "option": "60"
+                  }
                 ]
               },
               "requiredField": true
@@ -51,114 +77,125 @@
         },
         "options": {}
       },
-      "id": "form-trigger",
+      "id": "f3272622-caf9-4e91-8049-7f4d09d72109",
       "name": "Meeting Request Form",
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.2,
-      "position": [0, -80],
-      "webhookId": "meeting-scheduler-form"
+      "position": [
+        -3360,
+        960
+      ],
+      "webhookId": "4cd4e03e-bf76-463b-bfbf-4dfef25920e0"
     },
     {
       "parameters": {
-        "mailbox": "INBOX",
-        "postProcessAction": "read",
         "options": {
           "customEmailConfig": "[\"UNSEEN\"]"
         }
       },
-      "id": "imap-trigger",
+      "id": "65627ad0-4a55-4f25-b422-c60ab00d89d1",
       "name": "Meeting Request Email",
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2,
-      "position": [0, 220],
+      "position": [
+        -3360,
+        1264
+      ],
       "credentials": {
         "imap": {
-          "id": "REPLACE_ME",
-          "name": "Meeting Inbox (IMAP)"
+          "id": "hVIIixz8nZqw0mIB",
+          "name": "IMAP account"
         }
       }
     },
     {
       "parameters": {
-        "resource": "text",
-        "operation": "message",
-        "modelId": {
-          "__rl": true,
-          "value": "gpt-4o-mini",
-          "mode": "list"
-        },
-        "messages": {
-          "values": [
-            {
-              "role": "system",
-              "content": "You extract structured meeting-request data from an email. Reply with ONLY minified JSON, no prose: {\"name\":string,\"email\":string,\"purpose\":string,\"requestedDate\":\"YYYY-MM-DD\",\"requestedTime\":\"HH:mm\",\"duration\":number,\"timezone\":string}. \"duration\" is in minutes (default 30 if not stated). \"timezone\" is an IANA string (default \"UTC\" if not stated). If the body doesn't state an email address, leave \"email\" empty."
-            },
-            {
-              "role": "user",
-              "content": "={{ 'Subject: ' + $json.subject + '\\nFrom: ' + $json.from + '\\n\\n' + $json.textPlain }}"
-            }
-          ]
-        },
-        "options": {
-          "temperature": 0
-        }
-      },
-      "id": "parse-email-ai",
-      "name": "Parse Email With AI",
-      "type": "n8n-nodes-base.openAi",
-      "typeVersion": 1.6,
-      "position": [220, 220],
-      "credentials": {
-        "openAiApi": {
-          "id": "REPLACE_ME",
-          "name": "OpenAI"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "mode": "manual",
         "assignments": {
           "assignments": [
-            { "id": "a1", "name": "name", "type": "string", "value": "={{ $json['Name'] }}" },
-            { "id": "a2", "name": "email", "type": "string", "value": "={{ $json['Email'] }}" },
-            { "id": "a3", "name": "purpose", "type": "string", "value": "={{ $json['Meeting Purpose'] }}" },
-            { "id": "a4", "name": "requestedDate", "type": "string", "value": "={{ $json['Preferred Date'] }}" },
-            { "id": "a5", "name": "requestedTime", "type": "string", "value": "={{ $json['Preferred Time (24h, e.g. 14:00)'] }}" },
-            { "id": "a6", "name": "duration", "type": "string", "value": "={{ $json['Duration (minutes)'] }}" },
-            { "id": "a7", "name": "timezone", "type": "string", "value": "={{ $json['Timezone'] }}" },
-            { "id": "a8", "name": "source", "type": "string", "value": "form" }
+            {
+              "id": "a1",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json['Name'] }}"
+            },
+            {
+              "id": "a2",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json['Email'] }}"
+            },
+            {
+              "id": "a3",
+              "name": "purpose",
+              "type": "string",
+              "value": "={{ $json['Meeting Purpose'] }}"
+            },
+            {
+              "id": "a4",
+              "name": "requestedDate",
+              "type": "string",
+              "value": "={{ $json['Preferred Date'] }}"
+            },
+            {
+              "id": "a5",
+              "name": "requestedTime",
+              "type": "string",
+              "value": "={{ $json['Preferred Time (24h, e.g. 14:00)'] }}"
+            },
+            {
+              "id": "a6",
+              "name": "duration",
+              "type": "string",
+              "value": "={{ $json['Duration (minutes)'] }}"
+            },
+            {
+              "id": "a7",
+              "name": "timezone",
+              "type": "string",
+              "value": "={{ $json['Timezone'] }}"
+            },
+            {
+              "id": "a8",
+              "name": "source",
+              "type": "string",
+              "value": "form"
+            }
           ]
         },
         "options": {}
       },
-      "id": "normalize-form",
+      "id": "2e854506-a3b1-4be2-9b6f-7bb1e351c5c0",
       "name": "Normalize Form Input",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [220, -80]
+      "position": [
+        -3136,
+        960
+      ]
     },
     {
       "parameters": {
         "jsCode": "const item = $input.first().json;\n\n// The OpenAI node's response shape can vary slightly by version, so read defensively.\nconst raw = item.message?.content || item.content || item.text || item.output || '{}';\n\nlet parsed = {};\ntry {\n  const match = raw.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : raw);\n} catch (e) {\n  parsed = {};\n}\n\nlet fallbackEmail = '';\ntry {\n  fallbackEmail = $('Meeting Request Email').first().json.from || '';\n} catch (e) {\n  // no email trigger data in this execution\n}\n\nreturn [{\n  json: {\n    name: parsed.name || '',\n    email: parsed.email || fallbackEmail,\n    purpose: parsed.purpose || '',\n    requestedDate: parsed.requestedDate || '',\n    requestedTime: parsed.requestedTime || '',\n    duration: parsed.duration || 30,\n    timezone: parsed.timezone || 'UTC',\n    source: 'email'\n  }\n}];"
       },
-      "id": "normalize-email",
+      "id": "19155192-244f-43e5-97f3-045cc1a60f99",
       "name": "Normalize Email Input",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 220]
+      "position": [
+        -2800,
+        1296
+      ]
     },
     {
-      "parameters": {
-        "mode": "combine",
-        "combinationMode": "multiplex",
-        "numberInputs": 2
-      },
-      "id": "merge-intake",
+      "parameters": {},
+      "id": "ec1544a0-591b-48d7-929c-e7b591ccaea3",
       "name": "Merge Intake Sources",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.1,
-      "position": [660, 70]
+      "position": [
+        -2688,
+        1120
+      ]
     },
     {
       "parameters": {
@@ -169,20 +206,55 @@
             "typeValidation": "loose"
           },
           "conditions": [
-            { "id": "c1", "leftValue": "={{ $json.name }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
-            { "id": "c2", "leftValue": "={{ $json.email }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
-            { "id": "c3", "leftValue": "={{ $json.requestedDate }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
-            { "id": "c4", "leftValue": "={{ $json.requestedTime }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } }
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.requestedDate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "c4",
+              "leftValue": "={{ $json.requestedTime }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
           ],
           "combinator": "and"
         },
         "options": {}
       },
-      "id": "validate-request",
+      "id": "89c79035-a9ab-4b69-a67c-c2ac8186427c",
       "name": "Has Required Fields?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [880, 70]
+      "position": [
+        -2480,
+        1120
+      ]
     },
     {
       "parameters": {
@@ -191,15 +263,19 @@
         "message": "=Hi {{ $json.name || 'there' }},<br><br>We received your meeting request but couldn't find all the details we need (name, email, a preferred date, and a preferred time). Could you reply with the missing info so we can get this booked?<br><br>Thanks!",
         "options": {}
       },
-      "id": "request-missing-info",
+      "id": "ba94ff8c-1de8-46d5-ba8a-68f0cb3833e6",
       "name": "Request Missing Info",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1100, 260],
+      "position": [
+        -2256,
+        1312
+      ],
+      "webhookId": "7ecb4fcc-e6e8-4da7-bc35-57e5ebd88df0",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
         }
       }
     },
@@ -210,44 +286,52 @@
         "width": 560,
         "color": 6
       },
-      "id": "sticky-availability",
+      "id": "b6ce345a-2e84-44c1-a303-2c840c0c50e3",
       "name": "Availability Check",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [1080, -400]
+      "position": [
+        -2256,
+        592
+      ]
     },
     {
       "parameters": {
         "jsCode": "const item = $input.first().json;\nconst tz = item.timezone || 'UTC';\n\nlet requestedStart = DateTime.fromFormat(`${item.requestedDate} ${item.requestedTime}`, 'yyyy-MM-dd HH:mm', { zone: tz });\nif (!requestedStart.isValid) {\n  requestedStart = DateTime.now().setZone(tz).plus({ hours: 2 }).set({ minute: 0, second: 0, millisecond: 0 });\n}\n\nconst now = DateTime.now().setZone(tz);\nconst windowStart = (requestedStart < now ? now : requestedStart).toISO();\nconst windowEnd = requestedStart.plus({ days: 14 }).toISO();\n\nreturn [{\n  json: {\n    ...item,\n    requestedStart: requestedStart.toISO(),\n    windowStart,\n    windowEnd\n  }\n}];"
       },
-      "id": "compute-search-window",
+      "id": "06f29ff7-671e-4f37-894e-f98c6b0fd29b",
       "name": "Compute Search Window",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1100, -80]
+      "position": [
+        -2256,
+        960
+      ]
     },
     {
       "parameters": {
         "resource": "calendar",
-        "operation": "availability",
         "calendar": {
           "__rl": true,
           "value": "primary",
           "mode": "list"
         },
-        "timeMin": "={{ $json.windowStart }}",
+        "timeMin": "={{ $json }}",
         "timeMax": "={{ $json.windowEnd }}",
         "options": {}
       },
-      "id": "get-busy-times",
+      "id": "3e7fa8ab-494c-43bc-a22d-2eb88d151a7d",
       "name": "Get Busy Times",
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
-      "position": [1320, -80],
+      "position": [
+        -2032,
+        960
+      ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "REPLACE_ME",
-          "name": "Google Calendar"
+          "id": "kZl5TKBGDvPThOw0",
+          "name": "Google Calendar account"
         }
       }
     },
@@ -255,11 +339,14 @@
       "parameters": {
         "jsCode": "const request = $('Compute Search Window').first().json;\n\n// \"Get Busy Times\" can shape its output a couple of different ways depending\n// on node version/options - normalize them all into a flat {start, end} list.\nconst busyPeriods = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  if (j.start && j.end) {\n    busyPeriods.push({ start: j.start, end: j.end });\n  } else if (Array.isArray(j.busy)) {\n    for (const b of j.busy) busyPeriods.push({ start: b.start, end: b.end });\n  } else if (j.calendars) {\n    for (const cal of Object.values(j.calendars)) {\n      for (const b of (cal.busy || [])) busyPeriods.push({ start: b.start, end: b.end });\n    }\n  }\n}\n\nconst tz = request.timezone || 'UTC';\nconst durationMinutes = Number(request.duration) || 30;\nconst WORK_START_HOUR = 9;\nconst WORK_END_HOUR = 17;\nconst MAX_ALTERNATIVES = 3;\n\nconst overlaps = (aStart, aEnd, bStart, bEnd) => aStart < bEnd && bStart < aEnd;\n\nlet cursor = DateTime.fromISO(request.requestedStart, { zone: tz });\nif (!cursor.isValid) cursor = DateTime.now().setZone(tz);\n\nconst searchLimit = cursor.plus({ days: 14 });\nlet found = null;\nconst alternatives = [];\n\nwhile (cursor < searchLimit) {\n  if (cursor.weekday <= 5) {\n    const dayStart = cursor.set({ hour: WORK_START_HOUR, minute: 0, second: 0, millisecond: 0 });\n    const dayEnd = cursor.set({ hour: WORK_END_HOUR, minute: 0, second: 0, millisecond: 0 });\n    let slotStart = cursor > dayStart ? cursor : dayStart;\n\n    while (slotStart.plus({ minutes: durationMinutes }) <= dayEnd) {\n      const slotEnd = slotStart.plus({ minutes: durationMinutes });\n      const busy = busyPeriods.some(b => overlaps(\n        slotStart.toMillis(), slotEnd.toMillis(),\n        DateTime.fromISO(b.start).toMillis(), DateTime.fromISO(b.end).toMillis()\n      ));\n\n      if (!busy) {\n        if (!found) {\n          found = { start: slotStart.toISO(), end: slotEnd.toISO() };\n        } else if (alternatives.length < MAX_ALTERNATIVES) {\n          alternatives.push({ start: slotStart.toISO(), end: slotEnd.toISO() });\n        }\n      }\n\n      if (found && alternatives.length >= MAX_ALTERNATIVES) break;\n      slotStart = slotStart.plus({ minutes: 15 });\n    }\n  }\n\n  if (found && alternatives.length >= MAX_ALTERNATIVES) break;\n  cursor = cursor.plus({ days: 1 }).set({ hour: 0, minute: 0, second: 0, millisecond: 0 });\n}\n\nreturn [{\n  json: {\n    ...request,\n    slotFound: !!found,\n    slotStart: found ? found.start : null,\n    slotEnd: found ? found.end : null,\n    alternativeSlots: alternatives\n  }\n}];"
       },
-      "id": "find-available-slot",
+      "id": "1b898b33-028c-447a-9bcc-e922299fc36d",
       "name": "Find Available Slot",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1540, -80]
+      "position": [
+        -1808,
+        960
+      ]
     },
     {
       "parameters": {
@@ -268,11 +355,14 @@
         "width": 460,
         "color": 4
       },
-      "id": "sticky-booking",
+      "id": "5b5d23f4-29e1-4653-9298-d0c6934e505b",
       "name": "Auto-Book",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [1760, -400]
+      "position": [
+        -1584,
+        496
+      ]
     },
     {
       "parameters": {
@@ -283,49 +373,59 @@
             "typeValidation": "loose"
           },
           "conditions": [
-            { "id": "s1", "leftValue": "={{ $json.slotFound }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true", "singleValue": true } }
+            {
+              "id": "s1",
+              "leftValue": "={{ $json.slotFound }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
           ],
           "combinator": "and"
         },
         "options": {}
       },
-      "id": "slot-found",
+      "id": "f922be49-dac1-4b6e-a722-70d163237ca4",
       "name": "Slot Found?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [1760, -80]
+      "position": [
+        -1600,
+        960
+      ]
     },
     {
       "parameters": {
-        "resource": "event",
-        "operation": "create",
-        "calendar": {
-          "__rl": true,
-          "value": "primary",
-          "mode": "list"
+        "method": "POST",
+        "url": "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleCalendarOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "sendUpdates", "value": "all" }
+          ]
         },
-        "start": "={{ $json.slotStart }}",
-        "end": "={{ $json.slotEnd }}",
-        "additionalFields": {
-          "summary": "=Meeting: {{ $json.purpose }} with {{ $json.name }}",
-          "description": "=Booked automatically by the meeting scheduler concierge.\n\nRequested by: {{ $json.name }} ({{ $json.email }})\nPurpose: {{ $json.purpose }}",
-          "attendees": {
-            "values": [
-              { "email": "={{ $json.email }}" }
-            ]
-          },
-          "sendUpdates": "all"
-        }
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ summary: `Meeting: ${$json.purpose} with ${$json.name}`, description: `Booked automatically by the meeting scheduler concierge.\n\nRequested by: ${$json.name} (${$json.email})\nPurpose: ${$json.purpose}`, start: { dateTime: $json.slotStart }, end: { dateTime: $json.slotEnd }, attendees: [{ email: $json.email }] }) }}",
+        "options": {}
       },
-      "id": "create-calendar-event",
+      "id": "48ae6aa6-5dab-4f24-a2ad-61d96d5e0192",
       "name": "Book Meeting",
-      "type": "n8n-nodes-base.googleCalendar",
-      "typeVersion": 1.3,
-      "position": [1980, -200],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1376,
+        848
+      ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "REPLACE_ME",
-          "name": "Google Calendar"
+          "id": "kZl5TKBGDvPThOw0",
+          "name": "Google Calendar account"
         }
       }
     },
@@ -336,15 +436,19 @@
         "message": "=Hi {{ $json.name }},<br><br>We couldn't find a free slot at your requested time. Here are the next available openings for a {{ $json.duration }}-minute meeting:<br><br>{{ $json.alternativeSlots.map(s => '- ' + s.start).join('<br>') }}<br><br>Reply to this email with the option that works best and we'll get it booked.",
         "options": {}
       },
-      "id": "send-no-slot-email",
+      "id": "97b36d30-4637-4d31-b38b-9356b661c714",
       "name": "Send No-Availability Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [1980, 40],
+      "position": [
+        -1376,
+        1088
+      ],
+      "webhookId": "c9185ef7-4b20-4545-9f5e-1e9528ffc107",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
         }
       }
     },
@@ -355,21 +459,27 @@
         "width": 1760,
         "color": 3
       },
-      "id": "sticky-followup",
+      "id": "df92bee6-68d4-4816-994a-75d9cffe7a74",
       "name": "Confirmation + Reminders",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [2200, -480]
+      "position": [
+        -1072,
+        576
+      ]
     },
     {
       "parameters": {
         "jsCode": "const booking = $input.first().json;\nconst request = $('Find Available Slot').first().json;\n\nconst meetingLink = booking.hangoutLink\n  || booking.conferenceData?.entryPoints?.find(e => e.entryPointType === 'video')?.uri\n  || '';\n\nreturn [{\n  json: {\n    ...request,\n    eventId: booking.id,\n    eventLink: booking.htmlLink,\n    meetingLink\n  }\n}];"
       },
-      "id": "prepare-confirmation",
+      "id": "6ee908f8-cadf-4ff1-bf76-d4d73ff00811",
       "name": "Prepare Confirmation Details",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2220, -200]
+      "position": [
+        -1136,
+        848
+      ]
     },
     {
       "parameters": {
@@ -378,180 +488,404 @@
         "message": "=Hi {{ $json.name }},<br><br>Your meeting is booked for {{ $json.slotStart }} ({{ $json.timezone }}), for {{ $json.duration }} minutes.<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink + '<br><br>' : '' }}Calendar event: {{ $json.eventLink }}<br><br>See you then!",
         "options": {}
       },
-      "id": "send-confirmation-email",
+      "id": "0d62b4a2-43f2-41eb-855e-d416aba48af5",
       "name": "Send Confirmation Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [2440, -200],
+      "position": [
+        -912,
+        848
+      ],
+      "webhookId": "f95813df-b671-444b-8875-d0cfb89e1841",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
         }
       }
     },
     {
       "parameters": {
         "resume": "specificTime",
-        "dateTime": "={{ DateTime.fromISO($json.slotStart).minus({ hours: 24 }).toISO() }}"
+        "dateTime": "={{ DateTime.fromISO($('Prepare Confirmation Details').item.json.slotStart).minus({ hours: 24 }).toISO() }}"
       },
-      "id": "wait-24h",
+      "id": "79cd9f40-3d91-40f5-8ff1-066bde7912e0",
       "name": "Wait Until 24h Before",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [2660, -200],
+      "position": [
+        -688,
+        848
+      ],
       "webhookId": "wait-24h-before"
     },
     {
       "parameters": {
-        "sendTo": "={{ $json.email }}",
+        "sendTo": "={{ $('Prepare Confirmation Details').item.json.email }}",
         "subject": "=Reminder: your meeting is tomorrow",
-        "message": "=Hi {{ $json.name }},<br><br>Just a reminder that your meeting (\"{{ $json.purpose }}\") is scheduled for {{ $json.slotStart }} ({{ $json.timezone }}).<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink : '' }}",
+        "message": "=Hi {{ $('Prepare Confirmation Details').item.json.name }},<br><br>Just a reminder that your meeting (\"{{ $('Prepare Confirmation Details').item.json.purpose }}\") is scheduled for {{ $('Prepare Confirmation Details').item.json.slotStart }} ({{ $('Prepare Confirmation Details').item.json.timezone }}).<br><br>{{ $('Prepare Confirmation Details').item.json.meetingLink ? 'Join here: ' + $('Prepare Confirmation Details').item.json.meetingLink : '' }}",
         "options": {}
       },
-      "id": "send-24h-reminder",
+      "id": "d29a951c-727b-4a98-80a8-4b4603160014",
       "name": "Send 24h Reminder",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [2880, -200],
+      "position": [
+        -480,
+        848
+      ],
+      "webhookId": "46e791a1-f828-45e2-9407-01933505639b",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
         }
       }
     },
     {
       "parameters": {
         "resume": "specificTime",
-        "dateTime": "={{ DateTime.fromISO($json.slotStart).minus({ minutes: 30 }).toISO() }}"
+        "dateTime": "={{ DateTime.fromISO($('Prepare Confirmation Details').item.json.slotStart).minus({ minutes: 30 }).toISO() }}"
       },
-      "id": "wait-30min",
+      "id": "f7ec9edc-efc3-41d7-aaab-f71b9769a3f5",
       "name": "Wait Until 30min Before",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [3100, -200],
+      "position": [
+        -256,
+        848
+      ],
       "webhookId": "wait-30min-before"
     },
     {
       "parameters": {
-        "sendTo": "={{ $json.email }}",
+        "sendTo": "={{ $('Prepare Confirmation Details').item.json.email }}",
         "subject": "=Reminder: your meeting starts soon",
-        "message": "=Hi {{ $json.name }},<br><br>Your meeting (\"{{ $json.purpose }}\") starts in about 30 minutes.<br><br>{{ $json.meetingLink ? 'Join here: ' + $json.meetingLink : '' }}",
+        "message": "=Hi {{ $('Prepare Confirmation Details').item.json.name }},<br><br>Your meeting (\"{{ $('Prepare Confirmation Details').item.json.purpose }}\") starts in about 30 minutes.<br><br>{{ $('Prepare Confirmation Details').item.json.meetingLink ? 'Join here: ' + $('Prepare Confirmation Details').item.json.meetingLink : '' }}",
         "options": {}
       },
-      "id": "send-30min-reminder",
+      "id": "d390c54e-00c9-418b-ba51-ef1869fbf077",
       "name": "Send 30min Reminder",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [3320, -200],
+      "position": [
+        -32,
+        848
+      ],
+      "webhookId": "57ca1723-880e-4e41-a82a-12ee718392f2",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
         }
       }
     },
     {
       "parameters": {
         "resume": "specificTime",
-        "dateTime": "={{ $json.slotEnd }}"
+        "dateTime": "={{ $('Prepare Confirmation Details').item.json.slotEnd }}"
       },
-      "id": "wait-until-end",
+      "id": "f93e3fa9-b5f0-4de9-bbf7-67b7c016192e",
       "name": "Wait Until Meeting End",
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [3540, -200],
+      "position": [
+        192,
+        848
+      ],
       "webhookId": "wait-until-end"
     },
     {
       "parameters": {
-        "sendTo": "={{ $json.email }}",
+        "sendTo": "={{ $('Prepare Confirmation Details').item.json.email }}",
         "subject": "=How did your meeting go?",
-        "message": "=Hi {{ $json.name }},<br><br>Hope your meeting (\"{{ $json.purpose }}\") went well! Reply to this email if there's anything we can help follow up on.",
+        "message": "=Hi {{ $('Prepare Confirmation Details').item.json.name }},<br><br>Hope your meeting (\"{{ $('Prepare Confirmation Details').item.json.purpose }}\") went well! Reply to this email if there's anything we can help follow up on.",
         "options": {}
       },
-      "id": "send-followup-email",
+      "id": "c1307c43-f399-4410-903a-5d547ce6572b",
       "name": "Send Follow-Up Email",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [3760, -200],
+      "position": [
+        416,
+        848
+      ],
+      "webhookId": "32fe6519-cf69-44c6-b84b-cfce7fd88c7c",
       "credentials": {
         "gmailOAuth2": {
-          "id": "REPLACE_ME",
-          "name": "Gmail"
+          "id": "qbdR9XgbTODVJjif",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "responses": {
+          "values": [
+            {}
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -3136,
+        1264
+      ],
+      "id": "85147958-7eb0-494f-938b-30def2553915",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "NZSLW97vB748L1Z4",
+          "name": "OpenAi account"
         }
       }
     }
   ],
+  "pinData": {},
   "connections": {
     "Meeting Request Form": {
-      "main": [[{ "node": "Normalize Form Input", "type": "main", "index": 0 }]]
-    },
-    "Meeting Request Email": {
-      "main": [[{ "node": "Parse Email With AI", "type": "main", "index": 0 }]]
-    },
-    "Parse Email With AI": {
-      "main": [[{ "node": "Normalize Email Input", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Normalize Form Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Normalize Form Input": {
-      "main": [[{ "node": "Merge Intake Sources", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Intake Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Normalize Email Input": {
-      "main": [[{ "node": "Merge Intake Sources", "type": "main", "index": 1 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Intake Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     },
     "Merge Intake Sources": {
-      "main": [[{ "node": "Has Required Fields?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Has Required Fields?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Has Required Fields?": {
       "main": [
-        [{ "node": "Compute Search Window", "type": "main", "index": 0 }],
-        [{ "node": "Request Missing Info", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Compute Search Window",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Request Missing Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Compute Search Window": {
-      "main": [[{ "node": "Get Busy Times", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Get Busy Times",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Get Busy Times": {
-      "main": [[{ "node": "Find Available Slot", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Find Available Slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Find Available Slot": {
-      "main": [[{ "node": "Slot Found?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Slot Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Slot Found?": {
       "main": [
-        [{ "node": "Book Meeting", "type": "main", "index": 0 }],
-        [{ "node": "Send No-Availability Email", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Book Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send No-Availability Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Book Meeting": {
-      "main": [[{ "node": "Prepare Confirmation Details", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Prepare Confirmation Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Prepare Confirmation Details": {
-      "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send Confirmation Email": {
-      "main": [[{ "node": "Wait Until 24h Before", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Wait Until 24h Before",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Wait Until 24h Before": {
-      "main": [[{ "node": "Send 24h Reminder", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send 24h Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send 24h Reminder": {
-      "main": [[{ "node": "Wait Until 30min Before", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Wait Until 30min Before",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Wait Until 30min Before": {
-      "main": [[{ "node": "Send 30min Reminder", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send 30min Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Send 30min Reminder": {
-      "main": [[{ "node": "Wait Until Meeting End", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Wait Until Meeting End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Wait Until Meeting End": {
-      "main": [[{ "node": "Send Follow-Up Email", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Send Follow-Up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Request Email": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
   },
-  "pinData": {}
+  "versionId": "331fa652-1638-4463-9194-cb762d23ca45",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb44d16b79bf9efa9e9dbf1e80a5e3304271c466e2a95bf8189808956843f83b"
+  },
+  "id": "57tDXxwQGRqm4Rc0",
+  "tags": []
 }
